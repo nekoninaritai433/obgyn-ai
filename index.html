@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="産婦人科AI">
+<meta name="theme-color" content="#b5735a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>産婦人科 AIアシスタント</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf7f4;
+  --sur: #ffffff;
+  --sur2: #f5f0eb;
+  --bdr: #e8ddd4;
+  --ac: #b5735a;
+  --ac2: #d4956f;
+  --acl: #f7ede5;
+  --tx: #2d2420;
+  --txm: #8c7268;
+  --txl: #b8a49a;
+  --gr: #4a7c6f;
+  --grl: #eaf4f0;
+  --st: env(safe-area-inset-top,0px);
+  --sb: env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100dvh;background:var(--bg);color:var(--tx);font-family:'Noto Sans JP',sans-serif;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;background:var(--bg)}
+
+/* header */
+header{
+  background:var(--sur);border-bottom:1px solid var(--bdr);
+  padding:calc(13px + var(--st)) 14px 13px;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  box-shadow:0 1px 0 var(--bdr);
+}
+.hi{width:38px;height:38px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ht h1{font-family:'Noto Serif JP',serif;font-size:13.5px;font-weight:600;line-height:1.3}
+.ht p{font-size:10px;color:var(--txm);margin-top:1px}
+.hbadge{margin-left:auto;background:var(--acl);color:var(--ac);font-size:9px;font-weight:500;padding:3px 9px;border-radius:20px;border:1px solid #e8c8b8;flex-shrink:0}
+#ibtn{display:none;margin-left:6px;background:var(--ac);color:#fff;border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;flex-shrink:0}
+
+/* tabs */
+.tabs{background:var(--sur);border-bottom:1px solid var(--bdr);padding:9px 12px;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:5px 12px;border-radius:20px;border:1px solid var(--bdr);background:var(--sur2);color:var(--txm);font-size:11px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .16s;flex-shrink:0}
+.tab.on{background:var(--acl);border-color:var(--ac2);color:var(--ac);font-weight:500}
+
+/* chat */
+#chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:13px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+
+/* welcome */
+.wc{background:linear-gradient(135deg,var(--acl),#fdf6f0);border:1px solid #e8c8b8;border-radius:15px;padding:18px 14px;text-align:center;animation:fi .4s ease}
+.wc .wi{font-size:32px;margin-bottom:7px}
+.wc h2{font-family:'Noto Serif JP',serif;font-size:14px;font-weight:600;margin-bottom:5px}
+.wc p{font-size:11px;color:var(--txm);line-height:1.7;margin-bottom:13px}
+.qag{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.qab{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:9px 7px;font-size:11px;color:var(--tx);cursor:pointer;text-align:left;line-height:1.5;font-family:'Noto Sans JP',sans-serif;transition:all .16s}
+.qab:active{background:var(--acl);border-color:var(--ac2);color:var(--ac);transform:scale(.97)}
+.qab .qi{font-size:14px;display:block;margin-bottom:2px}
+
+/* messages */
+.msg{display:flex;gap:7px;align-items:flex-end;animation:fu .24s ease}
+.msg.u{flex-direction:row-reverse}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:var(--sur2);border:1px solid var(--bdr)}
+.msg.u .av{background:var(--gr);border-color:transparent}
+.bub{max-width:80%;padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.75;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.msg.u .bub{background:var(--gr);color:#fff;border-bottom-right-radius:3px}
+.msg.a .bub{background:var(--sur);color:var(--tx);border:1px solid var(--bdr);border-bottom-left-radius:3px}
+.bub .tg{display:inline-block;background:var(--acl);color:var(--ac);font-size:10px;padding:2px 7px;border-radius:9px;margin-bottom:6px;border:1px solid #e8c8b8}
+.bub .wn{margin-top:8px;padding:6px 10px;background:#fff8f0;border-left:3px solid var(--ac2);border-radius:0 6px 6px 0;font-size:11px;color:var(--txm)}
+.bub strong{color:var(--ac)}
+.bub .wk{display:inline-block;background:var(--grl);color:var(--gr);border:1px solid #c8e4dc;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:500}
+
+/* typing */
+.tw{display:flex;gap:7px;align-items:flex-end}
+.tp{display:flex;gap:4px;align-items:center;padding:12px 13px}
+.tp span{width:6px;height:6px;border-radius:50%;background:var(--txl);animation:bn 1.2s infinite}
+.tp span:nth-child(2){animation-delay:.2s}.tp span:nth-child(3){animation-delay:.4s}
+@keyframes bn{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* disclaimer */
+.disc{background:var(--sur2);border-top:1px solid var(--bdr);padding:6px 13px;font-size:9.5px;color:var(--txl);text-align:center;line-height:1.5;flex-shrink:0}
+
+/* input */
+.inpw{background:var(--sur);border-top:1px solid var(--bdr);padding:9px 12px calc(9px + var(--sb));flex-shrink:0}
+.inpr{display:flex;gap:8px;align-items:flex-end}
+#inp{flex:1;background:var(--sur2);border:1px solid var(--bdr);border-radius:20px;padding:10px 14px;font-size:14px;font-family:'Noto Sans JP',sans-serif;color:var(--tx);resize:none;outline:none;max-height:100px;line-height:1.5;transition:border-color .16s;-webkit-appearance:none}
+#inp:focus{border-color:var(--ac2)}
+#inp::placeholder{color:var(--txl)}
+#snd{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .12s,opacity .16s;box-shadow:0 3px 10px rgba(181,115,90,.35)}
+#snd:active{transform:scale(.92)}
+#snd:disabled{opacity:.45;transform:none}
+
+/* install banner */
+#bnr{display:none;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;padding:11px 14px;flex-shrink:0;align-items:center;gap:10px}
+#bnr.show{display:flex}
+.bt{flex:1}.bt strong{font-size:12px;display:block}.bt span{font-size:10px;opacity:.85}
+.bi{background:#fff;color:var(--ac);border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;font-weight:500}
+.bx{background:none;border:none;color:#fff;font-size:17px;cursor:pointer;padding:3px}
+
+/* week sheet */
+.ov{display:none;position:fixed;inset:0;background:rgba(45,36,32,.48);z-index:50;align-items:flex-end;justify-content:center}
+.ov.open{display:flex}
+.sh{background:var(--sur);border-radius:20px 20px 0 0;padding:18px 18px calc(18px + var(--sb));width:100%;max-width:480px;animation:su .26s cubic-bezier(.32,.72,0,1)}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-hd{width:34px;height:4px;background:var(--bdr);border-radius:2px;margin:0 auto 14px}
+.sh h3{font-family:'Noto Serif JP',serif;font-size:15px;margin-bottom:4px}
+.sh p{font-size:11px;color:var(--txm);margin-bottom:13px}
+.wkg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:13px}
+.wkb{padding:9px 0;border:1px solid var(--bdr);border-radius:9px;background:var(--sur2);font-size:11px;color:var(--tx);cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .14s}
+.wkb.s,.wkb:active{background:var(--acl);border-color:var(--ac2);color:var(--ac)}
+.sh-ok{width:100%;padding:12px;background:var(--ac);color:#fff;border:none;border-radius:11px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
+.sh-ok:active{opacity:.85}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- install banner -->
+  <div id="bnr">
+    <div class="bt">
+      <strong>📲 アプリとしてインストール</strong>
+      <span>ホーム画面に追加してすぐ起動できます</span>
+    </div>
+    <button class="bi" id="bnr-ok">追加</button>
+    <button class="bx" onclick="hideBnr()">✕</button>
+  </div>
+
+  <header>
+    <div class="hi">🩺</div>
+    <div class="ht">
+      <h1>産婦人科 AIアシスタント</h1>
+      <p>医療スタッフ専用サポートシステム</p>
+    </div>
+    <div class="hbadge">Staff Only</div>
+    <button id="ibtn" onclick="doInstall()">📲 追加</button>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-c="all">すべて</button>
+    <button class="tab" data-c="symptom">🩸 症状相談</button>
+    <button class="tab" data-c="week">📅 妊娠週数</button>
+    <button class="tab" data-c="faq">💡 FAQ</button>
+    <button class="tab" data-c="visit">🏥 受診目安</button>
+  </div>
+
+  <div id="chat">
+    <div class="wc">
+      <div class="wi">🌸</div>
+      <h2>産婦人科スタッフ向けAIアシスタント</h2>
+      <p>症状確認・妊娠週数別アドバイス・FAQ<br>受診目安の案内をサポートします。</p>
+      <div class="qag">
+        <button class="qab" onclick="sq('妊娠初期（〜13週）の注意点を教えてください')"><span class="qi">🤰</span>妊娠初期の注意点</button>
+        <button class="qab" onclick="sq('切迫早産の症状と対応フローを教えてください')"><span class="qi">⚠️</span>切迫早産の症状</button>
+        <button class="qab" onclick="sq('妊娠高血圧症候群の受診目安を教えてください')"><span class="qi">🩺</span>妊娠高血圧の目安</button>
+        <button class="qab" onclick="sq('産後うつの主なサインと対応を教えてください')"><span class="qi">💬</span>産後うつのサイン</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="disc">⚠️ 本アシスタントは医療スタッフの参考情報提供を目的としています。診断・治療の最終判断は必ず担当医が行ってください。</div>
+
+  <div class="inpw">
+    <div class="inpr">
+      <textarea id="inp" placeholder="質問を入力..." rows="1" oninput="rsz(this)" onkeydown="kd(event)"></textarea>
+      <button id="snd" onclick="send()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- week sheet -->
+<div class="ov" id="ov">
+  <div class="sh">
+    <div class="sh-hd"></div>
+    <h3>📅 妊娠週数を選択</h3>
+    <p>該当する週数帯を選んでください</p>
+    <div class="wkg" id="wkg"></div>
+    <button class="sh-ok" onclick="closeSheet()">この週数で質問する</button>
+  </div>
+</div>
+
+<script>
+const SYS = `あなたは産婦人科専門の医療スタッフ向けAIアシスタントです。
+
+【役割】看護師・助産師・医師を対象に以下をサポートします：
+- 症状・体調の相談への回答
+- 妊娠週数に応じた専門的アドバイス
+- よくある質問（FAQ）への対応
+- 受診・緊急対応の目安案内
+
+【回答スタイル】
+- 緊急度が高い場合は冒頭に【⚠️ 要緊急対応】と明記
+- 「緊急搬送」「受診目安」「観察継続」の3段階で対応レベルを示す
+- 日本産科婦人科学会（JSOG）ガイドライン準拠
+- 最終判断は担当医が行うことを明記
+
+日本語で簡潔に回答してください。`;
+
+const GEMINI_MODEL = 'gemini-2.0-flash';
+const WKS = ['1-4週','5-8週','9-12週','13-16週','17-20週','21-24週','25-28週','29-32週','33-36週','37-40週','産褥期','その他'];
+const PFXS = {symptom:'【症状相談】',week:'',faq:'【FAQ】',visit:'【受診目安】',all:''};
+
+let cat='all', selW=null, busy=false, hist=[];
+let deferredPWA=null;
+
+function getKey(){
+  const urlKey=new URLSearchParams(location.search).get('key');
+  if(urlKey) return urlKey;
+  try{return localStorage.getItem('gemini_key')||'';}catch(e){return '';}
+}
+function saveKey(k){try{localStorage.setItem('gemini_key',k.trim());}catch(e){}}
+
+// APIキー設定UI
+function showKeyModal(){
+  const cur=getKey();
+  const overlay=document.createElement('div');
+  overlay.id='key-modal';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(45,36,32,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML=`
+    <div style="background:var(--sur);border-radius:20px 20px 0 0;padding:22px 20px calc(22px + var(--sb));width:100%;max-width:480px">
+      <div style="width:34px;height:4px;background:var(--bdr);border-radius:2px;margin:0 auto 16px"></div>
+      <p style="font-family:'Noto Serif JP',serif;font-size:15px;font-weight:600;margin-bottom:6px">🔑 Gemini APIキー設定</p>
+      <p style="font-size:11px;color:var(--txm);margin-bottom:14px;line-height:1.7">
+        Google AI Studio（<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--ac)">aistudio.google.com</a>）で無料取得できます。キーはこの端末にのみ保存されます。
+      </p>
+      <input id="key-inp" type="password" placeholder="AIza..." value="${cur}"
+        style="width:100%;padding:11px 14px;border:1px solid var(--bdr);border-radius:12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;color:var(--tx);background:var(--sur2);outline:none;margin-bottom:12px">
+      <button onclick="applyKey()" style="width:100%;padding:12px;background:var(--ac);color:#fff;border:none;border-radius:11px;font-size:14px;font-family:'Noto Sans JP',sans-serif;cursor:pointer">保存して使う</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=>document.getElementById('key-inp').focus(),100);
+}
+function applyKey(){
+  const k=document.getElementById('key-inp').value.trim();
+  if(!k){alert('APIキーを入力してください');return;}
+  saveKey(k);
+  document.getElementById('key-modal')?.remove();
+  addMsg('ai','APIキーを保存しました。質問を入力してください 🌸');
+}
+
+// 設定ボタンをヘッダーに追加
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn=document.createElement('button');
+  btn.textContent='⚙️';
+  btn.title='APIキー設定';
+  btn.style.cssText='background:none;border:none;font-size:18px;cursor:pointer;padding:4px;flex-shrink:0;margin-left:2px';
+  btn.onclick=showKeyModal;
+  document.querySelector('header').appendChild(btn);
+  if(!getKey()) setTimeout(showKeyModal, 600);
+});
+
+// PWA install
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault(); deferredPWA=e;
+  document.getElementById('ibtn').style.display='block';
+  if(!localStorage.getItem('bnr-off')) setTimeout(()=>document.getElementById('bnr').classList.add('show'),1500);
+});
+window.addEventListener('appinstalled',()=>{
+  deferredPWA=null;
+  document.getElementById('ibtn').style.display='none';
+  hideBnr();
+});
+function doInstall(){if(!deferredPWA)return;deferredPWA.prompt();deferredPWA.userChoice.then(()=>deferredPWA=null)}
+document.getElementById('bnr-ok').onclick=doInstall;
+function hideBnr(){document.getElementById('bnr').classList.remove('show');localStorage.setItem('bnr-off','1')}
+
+// Service Worker
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  cat=b.dataset.c;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  if(cat==='week') openSheet();
+}));
+
+// Week sheet
+function openSheet(){
+  document.getElementById('wkg').innerHTML=WKS.map((w,i)=>
+    `<button class="wkb${selW===i?' s':''}" onclick="selWk(${i},'${w}')">${w}</button>`).join('');
+  document.getElementById('ov').classList.add('open');
+}
+function selWk(i,l){selW=i;document.querySelectorAll('.wkb').forEach((b,j)=>b.classList.toggle('s',j===i));document.getElementById('inp').placeholder=`妊娠${l}について質問する...`}
+function closeSheet(){document.getElementById('ov').classList.remove('open');if(selW!==null)document.getElementById('inp').focus()}
+document.getElementById('ov').addEventListener('click',e=>{if(e.target===document.getElementById('ov'))closeSheet()});
+
+// Input
+function rsz(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px'}
+function kd(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}}
+
+// Messages
+function addMsg(role,html){
+  const c=document.getElementById('chat');
+  const d=document.createElement('div');
+  d.className='msg '+(role==='user'?'u':'a');
+  d.innerHTML=`<div class="av">${role==='user'?'👤':'🩺'}</div><div class="bub">${html}</div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function addTyp(){
+  const c=document.getElementById('chat');
+  const d=document.createElement('div');d.className='tw';d.id='typ';
+  d.innerHTML='<div class="av">🩺</div><div class="bub"><div class="tp"><span></span><span></span><span></span></div></div>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function remTyp(){const t=document.getElementById('typ');if(t)t.remove()}
+
+function fmt(t){
+  return t
+    .replace(/【(.*?)】/g,'<span class="tg">$1</span><br>')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/妊娠(\d+[〜～-]\d+週)/g,'<span class="wk">妊娠$1</span>')
+    .replace(/⚠️([^\n]*)/g,'<div class="wn">⚠️$1</div>')
+    .replace(/\n[-•] /g,'<br>・')
+    .replace(/\n/g,'<br>');
+}
+
+async function send(custom){
+  const el=document.getElementById('inp');
+  const txt=custom||el.value.trim();
+  if(!txt||busy)return;
+  let pfx=PFXS[cat]||'';
+  if(cat==='week'&&selW!==null)pfx=`【妊娠${WKS[selW]}の相談】\n`;
+  const full=pfx+txt;
+  addMsg('user',txt.replace(/\n/g,'<br>'));
+  if(!custom){el.value='';el.style.height='auto';}
+  const key=getKey();
+  if(!key){showKeyModal();return;}
+  busy=true;document.getElementById('snd').disabled=true;addTyp();
+  hist.push({role:'user',parts:[{text:full}]});
+  try{
+    const body={
+      system_instruction:{parts:[{text:SYS}]},
+      contents:hist,
+      generationConfig:{maxOutputTokens:1000}
+    };
+    const r=await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`,
+      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}
+    );
+    const d=await r.json();
+    if(d.error){throw new Error(d.error.message);}
+    const ai=d.candidates?.[0]?.content?.parts?.[0]?.text||'回答を取得できませんでした。';
+    hist.push({role:'model',parts:[{text:ai}]});
+    remTyp();addMsg('ai',fmt(ai));
+  }catch(e){
+    remTyp();
+    let msg='通信に失敗しました。';
+    const em=e.message||'';
+    if(em.includes('API_KEY')||em.includes('invalid')||em.includes('API key'))
+      msg='APIキーが無効です。⚙️ボタンから再設定してください。';
+    else if(em.includes('Failed to fetch')||em.includes('NetworkError'))
+      msg='ネットワークエラーです。インターネット接続を確認してください。';
+    else if(em)
+      msg=`エラー: ${em}`;
+    addMsg('ai',`<span class="tg">エラー</span><br>${msg}`);
+    console.error('Gemini API error:',e);
+  }
+  busy=false;document.getElementById('snd').disabled=false;
+}
+function sq(t){send(t)}
+
+// URL mode
+const m=new URLSearchParams(location.search).get('mode');
+if(m==='symptom'){cat='symptom';document.querySelector('[data-c="symptom"]').classList.add('on');document.querySelector('[data-c="all"]').classList.remove('on');}
+else if(m==='week'){cat='week';document.querySelector('[data-c="week"]').classList.add('on');document.querySelector('[data-c="all"]').classList.remove('on');setTimeout(openSheet,300);}
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "産婦人科 AIアシスタント",
+  "short_name": "産婦人科AI",
+  "description": "産婦人科医療スタッフ向けAIチャットアシスタント",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf7f4",
+  "theme_color": "#b5735a",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "health"],
+  "shortcuts": [
+    { "name": "症状相談", "url": "./index.html?mode=symptom" },
+    { "name": "妊娠週数", "url": "./index.html?mode=week" }
+  ]
+}
